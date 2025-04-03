@@ -54,10 +54,25 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  let isbn_num = req.params.isbn
-  let book = books[isbn_num]
-  
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn_num = req.params.isbn
+    const user_review = req.body.review
+    let book = books[isbn_num]
+    const user = req.user
+
+    if (isbn_num > 0 && isbn_num < 13) {
+        if (book.reviews.hasOwnProperty(user)) {
+            book.reviews[user] = user_review
+        } else {
+            book.reviews = { 
+                ...book.reviews,
+                user: user_review
+            }
+        }
+        return res.status(200).json({message:"Review added successfully"})()
+    } else {
+        return res.status(404).json({message: "Invalid ISBN number"});
+    }
+
 });
 
 module.exports.authenticated = regd_users;
