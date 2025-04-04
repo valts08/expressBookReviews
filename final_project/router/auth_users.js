@@ -57,7 +57,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     const isbn_num = req.params.isbn
     const user_review = req.body.review
     let book = books[isbn_num]
-    const user = req.user
+    const user = req.session.authorization.username
 
     if (isbn_num > 0 && isbn_num < 13) {
         if (book.reviews.hasOwnProperty(user)) {
@@ -65,7 +65,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
         } else {
             book.reviews = { 
                 ...book.reviews,
-                user: user_review
+                [user]: user_review
             }
         }
         return res.status(200).json({message:"Review added successfully"})()
@@ -75,6 +75,27 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
 });
 
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn_num = req.params.isbn
+    let book = books[isbn_num]
+    const user = req.session.authorization.username
+
+    if (user) {
+        if (isbn_num > 0 && isbn_num < 13) {
+            if (book.reviews[user]) {
+                delete book.reviews[user]
+                return res.status(200).json({message:"Review deleted successfully"})
+            } else {
+                return res.status(404).json({message:"There are no reviews for user:" + user})
+            }
+        } else {
+            return res.status(404).json({message: "Invalid ISBN number"});
+        }
+    } else {
+        return res.status(404).json({message: "User undefined"})
+    }
+    });
+    
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
