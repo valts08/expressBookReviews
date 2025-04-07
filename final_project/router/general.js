@@ -1,5 +1,6 @@
 const express = require('express');
 let books = require("./booksdb.js");
+const axios = require('axios').default
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
@@ -25,7 +26,26 @@ public_users.post("/register", (req,res) => {
 public_users.get('/',function (req, res) {
   res.send(JSON.stringify(books,null,4))
   return res.status(300).json({message: "Yet to be implemented"});
+
+  
 });
+
+const book_list_promise = (url) => {
+    const req = axios.get(url)
+    
+    req.then(response => {
+        console.log('Fulfilled')
+        let data = response.data
+        console.log(JSON.stringify(data))
+    })
+    .catch(error => {
+        console.log('Rejected')
+
+        console.log(error.toString())
+    })
+}
+
+book_list_promise('https://raw.githubusercontent.com/valts08/expressBookReviews/refs/heads/main/final_project/router/booksdb.js')
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
